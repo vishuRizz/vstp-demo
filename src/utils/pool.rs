@@ -55,29 +55,29 @@ mod tests {
     #[tokio::test]
     async fn test_pool_basic() {
         let pool = Pool::new(2);
-        
+
         // Get items
         let item1: Vec<i32> = pool.get(|| Vec::new()).await;
         let item2: Vec<i32> = pool.get(|| Vec::new()).await;
-        
+
         // Return items
         pool.put(item1).await;
         pool.put(item2).await;
-        
+
         assert_eq!(pool.len().await, 2);
     }
 
     #[tokio::test]
     async fn test_pool_max_size() {
         let pool = Pool::new(1);
-        
+
         // Get and return two items
         let item1 = pool.get(|| 1).await;
         let item2 = pool.get(|| 2).await;
-        
+
         pool.put(item1).await;
         pool.put(item2).await;
-        
+
         // Only one item should be in the pool
         assert_eq!(pool.len().await, 1);
     }

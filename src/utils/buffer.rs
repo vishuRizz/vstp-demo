@@ -1,4 +1,4 @@
-use bytes::{Buf, BufMut, Bytes, BytesMut};
+use bytes::{BufMut, Bytes, BytesMut};
 use std::ops::{Deref, DerefMut};
 
 /// A smart buffer that can be used for both reading and writing

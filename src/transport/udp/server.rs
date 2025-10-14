@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::UdpSocket;
 use tokio::sync::Mutex;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info};
 
 use crate::core::frame::{encode_frame, try_decode_frame};
 use crate::core::types::{Flags, Frame, FrameType, Header, VstpError, VSTP_VERSION};

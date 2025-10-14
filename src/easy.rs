@@ -229,7 +229,7 @@ impl VstpServer {
 
                                 // Try to deserialize and handle the message
                                 match serde_json::from_slice::<T>(&frame.payload()) {
-                                    Ok(data) => {
+                                    Ok(_data) => {
                                         if let Err(_) = tokio::time::timeout(
                                             timeout,
                                             tx.send(ServerMessage {
@@ -277,7 +277,7 @@ impl VstpServer {
 
                         // Try to deserialize and handle the message
                         match serde_json::from_slice::<T>(&frame.payload()) {
-                            Ok(data) => {
+                            Ok(_data) => {
                                 if let Err(_) = tokio::time::timeout(
                                     timeout,
                                     tx.send(ServerMessage {

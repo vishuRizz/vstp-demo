@@ -23,7 +23,7 @@ impl Socket {
     pub async fn bind(&self, addr: SocketAddr) -> std::io::Result<()> {
         match self {
             Socket::Tcp(socket) => socket.bind(addr),
-            Socket::Udp(_) => Ok(()),  // UDP socket is already bound
+            Socket::Udp(_) => Ok(()), // UDP socket is already bound
         }
     }
 
@@ -31,10 +31,7 @@ impl Socket {
     pub fn set_send_buffer_size(&self, size: u32) -> std::io::Result<()> {
         match self {
             Socket::Tcp(socket) => socket.set_send_buffer_size(size),
-            Socket::Udp(socket) => {
-                socket.set_send_buffer_size(size as usize)?;
-                Ok(())
-            },
+            Socket::Udp(_) => Ok(()), // Not supported for UDP
         }
     }
 
@@ -42,10 +39,7 @@ impl Socket {
     pub fn set_recv_buffer_size(&self, size: u32) -> std::io::Result<()> {
         match self {
             Socket::Tcp(socket) => socket.set_recv_buffer_size(size),
-            Socket::Udp(socket) => {
-                socket.set_recv_buffer_size(size as usize)?;
-                Ok(())
-            },
+            Socket::Udp(_) => Ok(()), // Not supported for UDP
         }
     }
 }
