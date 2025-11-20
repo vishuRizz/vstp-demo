@@ -45,19 +45,34 @@
 
 pub mod codec;
 pub mod core;
-pub mod transport;
-pub mod security;
-pub mod protocol;
-pub mod utils;
 pub mod net;
+pub mod protocol;
+pub mod security;
+pub mod transport;
+pub mod utils;
 
 // Re-export commonly used types
-pub use core::types::{Frame, FrameType, Header, Flags, VstpError};
-pub use core::encoding::{encode_varint, decode_varint, varint_len};
+pub use core::encoding::{decode_varint, encode_varint, varint_len};
+pub use core::frame::{encode_frame, try_decode_frame};
+pub use core::types::{Flags, Frame, FrameType, Header, SessionId, VstpError};
 
 // Re-export transport modules
 pub use transport::tcp::{VstpTcpClient, VstpTcpServer};
 pub use transport::udp::{VstpUdpClient, VstpUdpServer};
+
+// Re-export codec
+pub use codec::VstpFrameCodec;
+
+// Module aliases for backwards compatibility
+pub mod tcp {
+    pub use crate::transport::tcp::*;
+}
+pub mod udp {
+    pub use crate::transport::udp::*;
+}
+pub mod types {
+    pub use crate::core::types::*;
+}
 
 // Re-export easy-to-use API
 pub mod easy;
