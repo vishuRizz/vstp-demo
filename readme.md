@@ -1,3 +1,7 @@
+cargo run --example simple_server
+
+cargo run --example simple_client
+
 # 🚀 VSTP - Vishu's Secure Transfer Protocol
 
 [![Crates.io](https://img.shields.io/crates/v/vstp.svg)](https://crates.io/crates/vstp)

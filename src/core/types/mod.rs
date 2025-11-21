@@ -33,7 +33,7 @@ impl Header {
 
 /// VSTP frame types
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FrameType {
     Hello = 0x01,
     Welcome = 0x02,

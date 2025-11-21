@@ -1,3 +1,5 @@
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::UdpSocket;
@@ -6,7 +8,10 @@ use tracing::{debug, info};
 
 use crate::core::frame::{encode_frame, try_decode_frame};
 use crate::core::types::{Flags, Frame, FrameType, Header, VstpError, VSTP_VERSION};
-use crate::transport::udp::reassembly::{extract_fragment_info, ReassemblyManager, MAX_DATAGRAM_SIZE};
+use crate::security::ai::AnomalyDetector;
+use crate::transport::udp::reassembly::{
+    extract_fragment_info, ReassemblyManager, MAX_DATAGRAM_SIZE,
+};
 
 /// Configuration for UDP server
 #[derive(Debug, Clone)]
@@ -44,13 +49,60 @@ impl VstpUdpServer {
         F: Fn(SocketAddr, Frame) -> Fut + Send + Sync + Clone + 'static,
         Fut: std::future::Future<Output = ()> + Send,
     {
+        self.run_with_detector(handler, None).await
+    }
+
+    /// Run the server with AI anomaly detection enabled
+    pub async fn run_with_detector<F, Fut>(
+        &self,
+        handler: F,
+        detector: Option<Arc<AnomalyDetector>>,
+    ) -> Result<(), VstpError>
+    where
+        F: Fn(SocketAddr, Frame) -> Fut + Send + Sync + Clone + 'static,
+        Fut: std::future::Future<Output = ()> + Send,
+    {
         info!("Starting UDP server...");
-        
+
         loop {
             match self.recv().await {
                 Ok((frame, addr)) => {
                     let handler = handler.clone();
+                    let detector = detector.clone();
+
+                    // Create a session ID for UDP (based on address)
+                    let session_id = {
+                        let mut hasher = DefaultHasher::new();
+                        addr.hash(&mut hasher);
+                        hasher.finish() as u128
+                    };
+
+                    let frame_size = std::mem::size_of_val(&frame) + frame.payload.len();
+
                     tokio::spawn(async move {
+                        // Run AI anomaly detection if enabled
+                        if let Some(detector) = &detector {
+                            match detector
+                                .analyze_frame(session_id, addr, &frame, frame_size)
+                                .await
+                            {
+                                Ok(threats) => {
+                                    if !threats.is_empty() {
+                                        tracing::warn!(
+                                            "Detected {} threat(s) from {}",
+                                            threats.len(),
+                                            addr
+                                        );
+                                    }
+                                }
+                                Err(e) => {
+                                    tracing::error!("Anomaly detection error from {}: {}", addr, e);
+                                    return; // Skip processing if blocked
+                                }
+                            }
+                        }
+
+                        // Process frame with handler
                         handler(addr, frame).await;
                     });
                 }
@@ -116,13 +168,17 @@ impl VstpUdpServer {
                     // Check if this is a fragmented frame
                     if let Some(fragment) = extract_fragment_info(&frame) {
                         // Handle fragmentation
-                        if let Some(assembled_data) = self.reassembly.add_fragment(from_addr, fragment).await? {
+                        if let Some(assembled_data) =
+                            self.reassembly.add_fragment(from_addr, fragment).await?
+                        {
                             // Reassemble the complete frame
                             let mut complete_frame = frame;
                             complete_frame.payload = assembled_data;
                             // Remove fragment headers
                             complete_frame.headers.retain(|h| {
-                                h.key != b"frag-id" && h.key != b"frag-index" && h.key != b"frag-total"
+                                h.key != b"frag-id"
+                                    && h.key != b"frag-index"
+                                    && h.key != b"frag-total"
                             });
 
                             // Send ACK if requested
