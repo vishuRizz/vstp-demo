@@ -2,6 +2,14 @@ cargo run --example simple_server
 
 cargo run --example simple_client
 
+
+💡 Why VSTP is Different from HTTP:
+   ✅ Binary encoding (efficient, compact)
+   ✅ Fixed frame structure (fast parsing)
+   ✅ Built-in CRC-32 (data integrity)
+   ✅ Extensible headers (flexible metadata)
+   ✅ Frame-based (not text-based like HTTP)
+
 # 🚀 VSTP - Vishu's Secure Transfer Protocol
 
 [![Crates.io](https://img.shields.io/crates/v/vstp.svg)](https://crates.io/crates/vstp)
