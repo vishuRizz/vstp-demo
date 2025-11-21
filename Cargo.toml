@@ -39,3 +39,27 @@ test-case = "3.1"
 [[bench]]
 name = "varint_benchmark"
 harness = false
+
+[[example]]
+name = "http_server_compare"
+path = "examples/compare/http_server.rs"
+
+[[example]]
+name = "http_client_compare"
+path = "examples/compare/http_client.rs"
+
+[[example]]
+name = "compare_metrics"
+path = "examples/compare/compare_metrics.rs"
+
+[[example]]
+name = "simple_server_ngrok"
+path = "examples/simple_server_ngrok.rs"
+
+[[example]]
+name = "simple_client_ngrok"
+path = "examples/simple_client_ngrok.rs"
+
+[[example]]
+name = "simple_client_direct_ip"
+path = "examples/simple_client_direct_ip.rs"

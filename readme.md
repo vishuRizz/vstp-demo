@@ -2,6 +2,40 @@ cargo run --example simple_server
 
 cargo run --example simple_client
 
+cargo run --example http_server_compare
+
+cargo run --example compare_metrics
+
+for tcp multi lap conection
+`bash
+ngrok tcp 8080
+```
+
+You should see output like:
+
+```
+Forwarding    tcp://0.tcp.ngrok.io:12345 -> localhost:8080
+```
+
+**Copy the TCP address** (e.g., `0.tcp.ngrok.io:12345`)
+
+### Step 2: Start VSTP Server
+
+**Terminal 1:**
+
+```bash
+cargo run --example simple_server_ngrok
+```
+
+This binds to `0.0.0.0:8080` to accept connections from ngrok.
+
+### Step 3: Connect from Remote Client
+
+**On another laptop/device:**
+
+```bash
+cargo run --example simple_client_ngrok
+```
 
 💡 Why VSTP is Different from HTTP:
    ✅ Binary encoding (efficient, compact)
